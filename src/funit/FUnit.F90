@@ -106,7 +106,7 @@ contains
             call runner%add_listener(TapListener(tap_file))
          end if
       end if
-         
+
 
       suite = load_tests()
       option => options%at('filter')
