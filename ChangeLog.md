@@ -5,6 +5,65 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [4.22.0] - 2026-11-13
+
+### Added
+
+- Add `propagate(message, location)` for exceptions that pass up a call stack (issue #594).  If an exception is pending, `location` is appended to the traceback of the most recent one; otherwise `propagate` throws like `throw`.  Text, XML and TAP output list the traceback when one is present.  Behaviour is unchanged for code that does not call `propagate`.
+- Add `@assertExceptionMatches(pattern)` and `catchMatch(pattern)` to catch the first exception whose message matches a POSIX extended regular expression, searched anywhere in the message (issue #595).  An invalid pattern is reported as a failure.  Not supported on Windows, where it reports a failure saying so.
+
+### Removed
+
+- Remove unused source files that were not part of any build: `src/funit/core/{Core,Arg,Mock}.F90`, `src/funit/core/{CodeUtilities,GeneratedSources,Utilities}.py`, and the stale `src/pfunit/core/{pFUnit,pfunit_main}.F90` copies
+
+## [4.21.0] - 2026-11-10
+
+### Added
+
+- Add `COMMAND_LINE_ARGS` option to `add_pfunit_ctest` to pass extra arguments to the test executable (issue #583)
+
+### Fixed
+
+- Skip the macOS-specific Fortran archive rule overrides for LLVM Flang, since `llvm-ranlib` rejects `-no_warning_for_no_symbols` (issue #581)
+- Fix `add_pfunit_ctest` fallback for `MPIEXEC_NUMPROC_FLAG`, which mistakenly set `MPIEXEC_EXECUTABLE` (issue #584)
+
+## [4.20.2] - 2026-11-10
+
+### Added
+
+- `find_package(PFUNIT)` now warns on Windows when the consumer's `CMAKE_MSVC_RUNTIME_LIBRARY` differs from the one pFUnit was built with
+
+### Fixed
+
+- Corrected several inaccuracies in `README.md`: grammar, table of contents numbering, minimum supported GFortran version, missing `--shuffle`/`--seed` command-line options, a duplicate `-h`/`--help` entry, a stale `PFUNIT-4.0` path in the GNU Make example, and missing entries (`CONTRIBUTING.md`, `cmake/`, `README-INSTALL-DEPRECATED`, `README-RELEASE-CHECKLIST`) in the "What's in the directory?" section
+- Guard REAL32/64/128 assertion test bodies in `Test_AssertEqual_Complex.pf` with `#ifdef _ISO_REAL32`/`_ISO_REAL64`/`_ISO_REAL128` instead of the never-defined `#ifdef _REAL32`/`_REAL64`/`_REAL128`, so this test coverage actually runs; also drop the handful of REAL64/REAL128 "explicit-kind literal expected" cases for which no matching `assertEqual` overload exists (unlike REAL32, whose default-kind coincidence on common platforms happened to mask the same gap), since a same-kind default-real literal immediately above already exercises the same axis (issue #576)
+- Guard REAL32/64/128 assertion test bodies with `#ifdef _ISO_REAL32`/`_ISO_REAL64`/`_ISO_REAL128` instead of the never-defined `#ifdef _REAL32`/`_REAL64`/`_REAL128`, so this test coverage actually runs (issue #574)
+- Guard `use, intrinsic :: iso_fortran_env, only: REAL128` with `#ifdef _ISO_REAL128` everywhere it was missing, fixing a build failure on platforms/compilers without `REAL128` support (issue #338)
+
+## [4.20.1] - 2026-09-11
+
+### Added
+
+- Windows CI workflow for MinGW `gfortran` and Intel `ifx` (issue #568)
+
+### Fixed
+
+- Fix execution of `command_line_filtering` and `shuffle_integration` tests on Windows (issue #568)
+- Fix CMake syntax error in `CTestCustom.cmake` on Windows caused by unescaped backslashes in `build_command()` output
+
+## [4.20.0] - 2026-09-10
+
+### Fixed
+
+- Support `ifx` and `ifort` compilers on Windows by branching debug and compiler flags
+
+### Changed
+
+- Update submodule (fArgParse v1.12.0)
+- Update CI to match build matrix of GFE
+- Separate scheduled CI from pull-request CI
+- Update GitHub Actions to current major versions
+
 ## [4.19.0] - 2026-05-28
 
 ### Added

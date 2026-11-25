@@ -25,7 +25,7 @@
 cmake_minimum_required(VERSION 3.24)
 
 project (PFUNIT
-  VERSION 4.19.0
+  VERSION 4.22.0
   LANGUAGES Fortran C)
 
 cmake_policy(SET CMP0077 NEW)
@@ -81,6 +81,10 @@ if (MINGW)
   set(SKIP_ROBUST YES)
 endif ()
 
+if (WIN32)
+  add_compile_definitions(_WIN32)
+endif()
+
 
 if (NOT SKIP_MPI)
   find_package (MPI QUIET COMPONENTS Fortran)
@@ -133,7 +137,7 @@ set (dest "PFUNIT-${PFUNIT_VERSION_MAJOR}.${PFUNIT_VERSION_MINOR}")
 
 # Code to silence warnings from RANLIB on OSX
 # From https://stackoverflow.com/questions/4929255/building-static-libraries-on-mac-using-cmake-and-gcc
-if (APPLE)
+if (APPLE AND NOT CMAKE_Fortran_COMPILER_ID STREQUAL "LLVMFlang")
   SET(CMAKE_Fortran_ARCHIVE_CREATE   "<CMAKE_AR> Scr <TARGET> <LINK_FLAGS> <OBJECTS>")
   SET(CMAKE_Fortran_ARCHIVE_FINISH   "<CMAKE_RANLIB> -no_warning_for_no_symbols -c <TARGET>")
 endif ()
@@ -173,6 +177,8 @@ if (ENABLE_TESTS)
   # are EXCLUDE_FROM_ALL
   # From https://stackoverflow.com/questions/733475/cmake-ctest-make-test-doesnt-build-tests/56448477#56448477
   build_command(CTEST_CUSTOM_PRE_TEST TARGET build-tests)
+  # Ensure forward slashes so Windows paths do not break CTestCustom.cmake syntax with unescaped backslashes
+  string(REPLACE "\\" "/" CTEST_CUSTOM_PRE_TEST "${CTEST_CUSTOM_PRE_TEST}")
   string(CONFIGURE \"@CTEST_CUSTOM_PRE_TEST@\" CTEST_CUSTOM_PRE_TEST_QUOTED ESCAPE_QUOTES)
   file(WRITE "${CMAKE_BINARY_DIR}/CTestCustom.cmake" "set(CTEST_CUSTOM_PRE_TEST ${CTEST_CUSTOM_PRE_TEST_QUOTED})" "\n")
 endif()
